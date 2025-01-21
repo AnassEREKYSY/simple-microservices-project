@@ -123,7 +123,5 @@ To see the list of users:
 
 ### Stopping the Containers
     ```bash
-        When you're done interacting with the application, you can stop the running containers by pressing Ctrl+C in your terminal where Docker Compose is running, and then:
-
         docker-compose down
     ```
