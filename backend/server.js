@@ -1,15 +1,19 @@
 const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
-const cors = require('cors'); // Import cors
+const cors = require('cors');
 const app = express();
 const port = 3000;
+app.use(cors({ origin: '*' })); 
+
+// Environment variable to determine if we're running in Docker or locally
+const dbHost = process.env.DB_HOST || 'localhost'; // Use localhost if running locally
 
 // Enable CORS for all routes
 app.use(cors());
 
 // Connect to PostgreSQL using Sequelize
 const sequelize = new Sequelize('your-db', 'your-user', 'your-password', {
-  host: 'database',  // The service name for your database container (from docker-compose)
+  host: dbHost,  // Host depends on the environment (Docker or Local)
   dialect: 'postgres',
   logging: console.log,
 });
@@ -27,38 +31,41 @@ const User = sequelize.define('User', {
   },
 });
 
-// Sync the database (this will create the table if it doesn't exist)
-sequelize.sync()
+// Sync the database
+sequelize.sync({ force: true })
   .then(() => {
-    console.log("Database synced!");
+    console.log('Database synced!');
+    User.count().then(count => {
+      console.log(`There are ${count} users in the database.`);
+    });
   })
-  .catch((err) => {
-    console.error("Failed to sync database:", err);
+  .catch(err => {
+    console.error('Failed to sync database:', err);
   });
 
 // Middleware for parsing JSON
 app.use(express.json());
 
-// Simulating a simple data fetch
+// Define API routes
 app.get('/api/data', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
 });
 
-// Route to get all users from the database
 app.get('/api/users', async (req, res) => {
+  console.log("Request received for /api/users");
   try {
     const users = await User.findAll();
+    console.log("Users fetched:", users);
     res.json(users);
   } catch (err) {
+    console.error("Error fetching users:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Route to add a new user to the database
 app.post('/api/users', async (req, res) => {
   const { name, email } = req.body;
 
-  // Simple validation
   if (!name || !email) {
     return res.status(400).json({ error: 'Name and email are required' });
   }
@@ -71,6 +78,12 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Backend server is running at http://localhost:${port}`);
-});
+// Export the app and sequelize for testing
+module.exports = { app, sequelize };
+
+// Only start the server if the file is run directly (not when required in tests)
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Backend server is running at http://localhost:${port}`);
+  });
+}

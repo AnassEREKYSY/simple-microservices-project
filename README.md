@@ -122,6 +122,12 @@ To see the list of users:
    ```
 
 ### Stopping the Containers
-    ```bash
-        docker-compose down
-    ```
+   ```bash
+      docker-compose down
+   ```
+
+### act success command 
+   ```bash
+      act 
+   ```
+![act command](assets/actSuccess.png)

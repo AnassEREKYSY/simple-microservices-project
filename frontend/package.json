@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "test": "cypress run"
+    "build": "ng build --prod",
+    "test": "cypress open",
+    "cypress:run": "cypress run"
   }, 
   "devDependencies": {
     "cypress": "^14.0.0"
