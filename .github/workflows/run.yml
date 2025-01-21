@@ -29,6 +29,9 @@ jobs:
       run: npm install
       working-directory: ./frontend
 
+    - name: Debug frontend logs
+      run: docker-compose logs frontend
+      
     - name: Wait for frontend to be ready
       run: |
         timeout=30
