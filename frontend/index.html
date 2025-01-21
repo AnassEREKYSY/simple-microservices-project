@@ -3,12 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Frontend</title>
+    <title>Simple Microservices</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"], input[type="email"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 12px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #fetchUsersBtn {
+            margin-top: 20px;
+            background-color: #007bff;
+        }
+
+        #fetchUsersBtn:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        #usersList {
+            margin-top: 30px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Simple Microservices!</h1>
-    <button id="fetchDataBtn">Fetch Data</button>
-    <div id="data"></div>
+    <div class="container">
+        <h1>Welcome to Simple Microservices</h1>
+
+        <!-- Form to create a new user -->
+        <h2>Create a User</h2>
+        <form id="createUserForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required placeholder="Enter user name">
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required placeholder="Enter user email">
+
+            <button type="submit">Create User</button>
+        </form>
+
+        <!-- Button to fetch all users -->
+        <button id="fetchUsersBtn">Fetch All Users</button>
+
+        <!-- Table to display users -->
+        <div id="usersList"></div>
+    </div>
 
     <script src="script.js"></script>
 </body>

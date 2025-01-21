@@ -1,17 +1,27 @@
-# Use Node.js image
+# Start from the Node.js image (Debian-based)
 FROM node:18
 
-# Set working directory
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3 \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory in the container
 WORKDIR /app
 
-# Copy backend files into the container
-COPY . .
+# Copy package.json and package-lock.json (if exists) first to leverage Docker cache
+COPY package*.json ./
 
-# Install dependencies
+# Install dependencies (including pg and Sequelize)
 RUN npm install
+
+# Copy the rest of the application files
+COPY . .
 
 # Expose the backend port
 EXPOSE 3000
 
-# Start the backend server
+# Start the application
 CMD ["node", "server.js"]
