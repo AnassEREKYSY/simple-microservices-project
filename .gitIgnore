@@ -1,0 +1,28 @@
+# Node.js
+node_modules/
+npm-debug.log
+
+# Docker
+*.log
+*.db
+*.bak
+*.tar
+docker-compose.override.yml
+
+# SQLite Database file
+/database/database.db
+
+# Frontend build (if applicable)
+frontend/dist/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Other system-specific files
+*.swp
