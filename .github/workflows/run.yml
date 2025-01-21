@@ -29,6 +29,18 @@ jobs:
       run: npm install
       working-directory: ./frontend
 
+    - name: Wait for frontend to be ready
+      run: |
+        timeout=30
+        until curl -s http://localhost:8080 > /dev/null; do
+          echo "Waiting for frontend to be ready..."
+          sleep 2
+          timeout=$((timeout-1))
+          if [ $timeout -le 0 ]; then
+            echo "Frontend server failed to start."
+            exit 1
+          fi
+        done
     - name: Run tests for Frontend
       run: npm run test
       working-directory: ./frontend
