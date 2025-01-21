@@ -5,33 +5,51 @@ services:
     build:
       context: ./frontend
     ports:
-      - "8080:80"  # Expose frontend on port 8080
+      - "8080:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]  # Check if frontend is responding
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
 
   backend:
     build:
       context: ./backend
     ports:
-      - "3000:3000"  # Expose backend on port 3000
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]  # Check if backend API is responding
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
     volumes:
-      - ./database:/app/database  # Mount the local database directory to the container
+      - ./database:/app/database
     environment:
-      - DB_HOST=database  # This should match the service name of your PostgreSQL container
+      - DB_HOST=database
       - DB_USER=your-user
       - DB_PASSWORD=your-password
       - DB_NAME=your-db
     depends_on:
-      - database  # Ensure backend starts after the database is ready
+      - database
 
   database:
-    image: postgres:latest  # Use the official PostgreSQL image
+    image: postgres:latest
     environment:
-      POSTGRES_USER: your-user  # Database user
-      POSTGRES_PASSWORD: your-password  # Database password
-      POSTGRES_DB: your-db  # Database name
+      POSTGRES_USER: your-user
+      POSTGRES_PASSWORD: your-password
+      POSTGRES_DB: your-db
     ports:
-      - "5432:5432"  # Expose PostgreSQL port
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # Persist database data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "your-user", "-d", "your-db", "-h", "localhost"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
 
 volumes:
-  postgres_data:  # Named volume to persist PostgreSQL data
+  postgres_data:

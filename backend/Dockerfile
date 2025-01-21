@@ -17,6 +17,9 @@ COPY package*.json ./
 # Install dependencies (including pg and Sequelize)
 RUN npm install
 
+# Install testing dependencies
+RUN npm install --save-dev jest supertest
+
 # Copy the rest of the application files
 COPY . .
 
