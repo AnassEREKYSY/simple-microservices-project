@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s  # The interval at which to scrape metrics
+
+scrape_configs:
+  - job_name: 'node-backend'
+    static_configs:
+      - targets: ['backend:3000']  # Replace 'backend' with your actual container name
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']
+

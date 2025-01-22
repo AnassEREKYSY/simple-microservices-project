@@ -1,15 +1,38 @@
 const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
 const cors = require('cors');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+const promClient = require('prom-client');  // Import Prometheus client
+
 const app = express();
 const port = 3000;
-app.use(cors({ origin: '*' })); 
+app.use(cors({ origin: '*' }));
 
 // Environment variable to determine if we're running in Docker or locally
 const dbHost = process.env.DB_HOST || 'localhost'; // Use localhost if running locally
 
-// Enable CORS for all routes
-app.use(cors());
+// Set up Prometheus metrics collection
+const collectDefaultMetrics = promClient.collectDefaultMetrics;
+collectDefaultMetrics({ timeout: 5000 });  // Collect default metrics like memory, CPU, etc.
+
+// Define custom metrics for your application (e.g., API requests counter)
+const apiRequests = new promClient.Counter({
+  name: 'api_requests_total',
+  help: 'Total number of API requests',
+});
+
+// Increment counter on each API request
+app.use((req, res, next) => {
+  apiRequests.inc();
+  next();
+});
+
+// Expose Prometheus metrics at /metrics
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', promClient.register.contentType);
+  res.end(await promClient.register.metrics());
+});
 
 // Connect to PostgreSQL using Sequelize
 const sequelize = new Sequelize('your-db', 'your-user', 'your-password', {
@@ -46,19 +69,86 @@ sequelize.sync({ force: true })
 // Middleware for parsing JSON
 app.use(express.json());
 
+// Define Swagger options
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Node.js API Documentation',
+      version: '1.0.0',
+      description: 'API documentation for the backend',
+    },
+  },
+  apis: ['./server.js'], // File(s) containing annotations for the OpenAPI Specification
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Define API routes
+/**
+ * @swagger
+ * /api/data:
+ *   get:
+ *     summary: Retrieve a simple message
+ *     responses:
+ *       200:
+ *         description: A JSON object containing a message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
 app.get('/api/data', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
 });
 
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Retrieve all users
+ *     responses:
+ *       200:
+ *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   name:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *   post:
+ *     summary: Add a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: The created user
+ */
 app.get('/api/users', async (req, res) => {
-  console.log("Request received for /api/users");
   try {
     const users = await User.findAll();
-    console.log("Users fetched:", users);
     res.json(users);
   } catch (err) {
-    console.error("Error fetching users:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -85,5 +175,6 @@ module.exports = { app, sequelize };
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`Backend server is running at http://localhost:${port}`);
+    console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
   });
 }

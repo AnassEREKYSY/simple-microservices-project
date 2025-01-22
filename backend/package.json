@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "test": "jest",
+    "test:docker": "cross-env NODE_ENV=docker jest",
     "start": "node server.js"
   },
   "keywords": [],
@@ -16,9 +17,13 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "pg": "^8.13.1",
-    "sequelize": "^6.37.5"
+    "prom-client": "^15.1.3",
+    "sequelize": "^6.37.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "jest": "^27.5.1",
     "supertest": "^6.1.3"
   }

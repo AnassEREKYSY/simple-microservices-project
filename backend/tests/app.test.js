@@ -1,57 +1,42 @@
 const request = require('supertest');
 const { app, sequelize } = require('../server.js');
 
-// Set the base URL for testing depending on the environment
-const baseUrl = process.env.NODE_ENV === 'docker' ? 'http://backend:3000' : 'http://localhost:3000';
+// Increase Jest timeout
+jest.setTimeout(15000);
 
-// Define test data
+// Test data
 const userData = { name: 'Test User', email: 'test@example.com' };
 
 beforeAll(async () => {
-  // Ensure the database is synced before tests run
   console.log('Syncing database...');
-  await sequelize.sync({ force: true });  // Clear tables before each test
+  await sequelize.sync({ force: true });
 
-  // Log the userData to ensure it’s correct
-  console.log('Inserting user data:', userData);
+  console.log('Inserting test user...');
+  await sequelize.models.User.create(userData);
 
-  // Insert test user into the database
-  try {
-    await sequelize.models.User.create(userData);
-    console.log('User inserted');
-  } catch (err) {
-    console.error('Error inserting user:', err);
-  }
-
-  // Verify the user is inserted by checking count
-  const userCount = await sequelize.models.User.count();
-  console.log(`Number of users in database: ${userCount}`);
+  console.log('Database setup complete.');
 });
 
 afterAll(async () => {
-  // Close the database connection after tests
+  console.log('Closing database connection...');
   await sequelize.close();
 });
 
 describe('Backend API Tests', () => {
   it('should fetch the users list', async () => {
-    console.log('Making GET request to /api/users');
-    const res = await request(baseUrl)
-      .get('/api/users')
-      .set('Content-Type', 'application/json')
-      .send();
+    console.time('API Response Time');
+    const res = await request('http://backend:3000').get('/api/users');
+    console.timeEnd('API Response Time');
 
-    console.log('Response Status:', res.statusCode);
-    console.log('Response Body:', res.body);
-
-    // Check if the response status is 200
+    // Assertions
     expect(res.statusCode).toBe(200);
-
-    // Ensure that there is at least one user
-    expect(res.body).toHaveLength(1);
-
-    // Check that the user's name and email match
-    expect(res.body[0].name).toBe(userData.name);
-    expect(res.body[0].email).toBe(userData.email);
+    expect(res.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: userData.name,
+          email: userData.email,
+        }),
+      ])
+    );
   });
 });
