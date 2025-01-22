@@ -96,4 +96,4 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t erekysy/frontendmicroservicecicd:latest ./frontenda
+          docker build -t erekysy/frontendmicroservicecicd:latest ./frontend
