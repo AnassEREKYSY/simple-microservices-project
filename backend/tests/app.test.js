@@ -9,17 +9,13 @@ const userData = { name: 'Test User', email: 'test@example.com' };
 
 beforeAll(async () => {
   console.log('Syncing database...');
+  await sequelize.authenticate();  // Make sure the connection is active
   await sequelize.sync({ force: true });
-
-  console.log('Inserting test user...');
-  await sequelize.models.User.create(userData);
-
-  console.log('Database setup complete.');
 });
 
 afterAll(async () => {
   console.log('Closing database connection...');
-  await sequelize.close();
+  await sequelize.close();  // Close the connection after all tests
 });
 
 describe('Backend API Tests', () => {

@@ -60,18 +60,22 @@ jobs:
   # test-backend:
   #   runs-on: ubuntu-latest
   #   steps:
+  #     # Step 1: Checkout code
   #     - name: Checkout code
   #       uses: actions/checkout@v3
 
+  #     # Step 2: Setup Node.js
   #     - name: Setup Node.js
   #       uses: actions/setup-node@v3
   #       with:
   #         node-version: '16'
 
-  #     - name: Install dependencies
+  #     # Step 3: Install backend dependencies
+  #     - name: Install backend dependencies
   #       run: npm install
   #       working-directory: ./backend
 
+  #     # Step 4: Run backend tests
   #     - name: Run tests
   #       run: npm test
   #       working-directory: ./backend

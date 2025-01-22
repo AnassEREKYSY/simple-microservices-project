@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:80"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]  # Check if frontend is responding
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
       retries: 3
       start_period: 10s
@@ -19,7 +19,7 @@ services:
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]  # Check if backend API is responding
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]
       interval: 30s
       retries: 3
       start_period: 10s
@@ -64,7 +64,7 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - backend-network
-    restart: always  # Ensures Prometheus restarts if it fails
+    restart: always
 
   grafana:
     image: grafana/grafana:latest
@@ -76,8 +76,22 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - backend-network
-    restart: always  # Ensures Grafana restarts if it fails
+    restart: always
 
+  test:
+    build:
+      context: ./backend  # Assuming your test file is within the backend project
+    environment:
+      - DB_HOST=database
+      - DB_USER=your-user
+      - DB_PASSWORD=your-password
+      - DB_NAME=your-db
+    command: npm test  # Run tests after the container starts
+    depends_on:
+      - backend
+      - database
+    networks:
+      - backend-network
 
 volumes:
   postgres_data:
